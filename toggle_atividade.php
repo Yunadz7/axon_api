@@ -5,34 +5,38 @@ header("Content-Type: application/json");
 
 include("conexao.php");
 
-$id = isset($_POST['id']) ? $_POST['id'] : null;
+$id_usuario = $_POST['id_usuario'] ?? null;
+$id_atividade = $_POST['id_atividade'] ?? null;
+$concluida = $_POST['concluida'] ?? null;
 
-if (!$id) {
-    echo json_encode([
-        "status" => "erro",
-        "mensagem" => "ID não recebido"
-    ]);
+if (!$id_usuario || !$id_atividade || $concluida === null) {
+    echo json_encode(["status" => "erro", "msg" => "dados incompletos"]);
     exit;
 }
 
-$sql = "SELECT concluida FROM atividades WHERE id=$id";
-$result = mysqli_query($conn, $sql);
+$id_usuario = intval($id_usuario);
+$id_atividade = intval($id_atividade);
+$concluida = intval($concluida);
 
-$row = mysqli_fetch_assoc($result);
+// verifica se já existe
+$check = mysqli_query($conn, "
+    SELECT id FROM atividades_usuario 
+    WHERE id_usuario = $id_usuario AND id_atividade = $id_atividade
+");
 
-if (!$row) {
-    echo json_encode([
-        "status" => "erro",
-        "mensagem" => "Atividade não encontrada"
-    ]);
-    exit;
+if (mysqli_num_rows($check) > 0) {
+    // atualiza
+    mysqli_query($conn, "
+        UPDATE atividades_usuario 
+        SET concluida = $concluida
+        WHERE id_usuario = $id_usuario AND id_atividade = $id_atividade
+    ");
+} else {
+    // insere
+    mysqli_query($conn, "
+        INSERT INTO atividades_usuario (id_usuario, id_atividade, concluida)
+        VALUES ($id_usuario, $id_atividade, $concluida)
+    ");
 }
 
-$novo = $row['concluida'] == 1 ? 0 : 1;
-
-mysqli_query($conn, "UPDATE atividades SET concluida=$novo WHERE id=$id");
-
-echo json_encode([
-    "status" => "ok",
-    "novo" => $novo
-]);
+echo json_encode(["status" => "ok"]);
