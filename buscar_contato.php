@@ -14,28 +14,23 @@ if ($conn->connect_error) {
     exit;
 }
 
-$sql = "SELECT nome_contato, numero 
-        FROM ajuda 
+$sql = "SELECT id_ajuda, nome_contato, numero
+        FROM ajuda
         WHERE id_usuario = $id_usuario
-        ORDER BY id_ajuda DESC
-        LIMIT 1";
+        ORDER BY id_ajuda DESC";
 
 $result = $conn->query($sql);
 
-if ($result && $result->num_rows > 0) {
-    $row = $result->fetch_assoc();
+$contatos = [];
 
-    echo json_encode([
-        "sucesso" => true,
-        "nome_contato" => $row["nome_contato"],
-        "numero" => $row["numero"]
-    ]);
-} else {
-    echo json_encode([
-        "sucesso" => false,
-        "mensagem" => "Nenhum contato encontrado"
-    ]);
+while ($row = $result->fetch_assoc()) {
+    $contatos[] = $row;
 }
+
+echo json_encode([
+    "sucesso" => true,
+    "contatos" => $contatos
+]);
 
 $conn->close();
 ?>

@@ -9,8 +9,11 @@ $dados = json_decode(file_get_contents("php://input"), true);
 $id_usuario = $dados["id_usuario"] ?? 1;
 $nome_contato = $dados["nome_contato"] ?? "";
 $numero = $dados["numero"] ?? "";
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit;
+}
 
-if ($nome_contato== "" || $numero == "") {
+if ($nome_contato == "" || $numero == "") {
     echo json_encode([
         "sucesso" => false,
         "mensagem" => "Preencha todos os campos"
@@ -44,4 +47,3 @@ if ($conn->query($sql)) {
 }
 
 $conn->close();
-?>
