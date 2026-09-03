@@ -2,7 +2,7 @@
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
-$id_usuario = $_GET["id_usuario"] ?? 1;
+$id_usuario = $_GET["id_usuario"] ?? " ";
 
 $conn = new mysqli("localhost", "root", "", "axon");
 
@@ -14,7 +14,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-$sql = "SELECT id_ajuda, nome_contato, numero
+$sql = "SELECT nome_contato, numero
         FROM ajuda
         WHERE id_usuario = $id_usuario
         ORDER BY id_ajuda DESC";
@@ -26,6 +26,8 @@ $contatos = [];
 while ($row = $result->fetch_assoc()) {
     $contatos[] = $row;
 }
+
+alert($contatos);
 
 echo json_encode([
     "sucesso" => true,

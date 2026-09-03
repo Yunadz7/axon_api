@@ -6,7 +6,7 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 
 $dados = json_decode(file_get_contents("php://input"), true);
 
-$id_usuario = $dados["id_usuario"] ?? 1;
+$id_usuario = $dados["id_usuario"] ?? "";
 $nome_contato = $dados["nome_contato"] ?? "";
 $numero = $dados["numero"] ?? "";
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
