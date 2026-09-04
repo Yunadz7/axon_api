@@ -1,19 +1,29 @@
 <?php
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 
-$dados = json_decode(file_get_contents("php://input"), true);
-
-$id_usuario = $dados["id_usuario"] ?? "";
-$nome_contato = $dados["nome_contato"] ?? "";
-$numero = $dados["numero"] ?? "";
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+// Trata requisição de verificação CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit;
 }
 
-if ($nome_contato == "" || $numero == "") {
+// 1. Tenta ler do FormData ($_POST)
+$id_usuario = $_POST["id_usuario"] ?? "";
+$nome_contato = trim($_POST["nome_contato"] ?? "");
+$numero = trim($_POST["numero"] ?? "");
+
+// 2. Se $_POST estiver vazio, tenta ler via JSON (file_get_contents)
+if (empty($nome_contato) && empty($numero)) {
+    $dados = json_decode(file_get_contents("php://input"), true);
+    $id_usuario = $dados["id_usuario"] ?? "";
+    $nome_contato = trim($dados["nome_contato"] ?? "");
+    $numero = trim($dados["numero"] ?? "");
+}
+
+if (empty($nome_contato) || empty($numero)) {
     echo json_encode([
         "sucesso" => false,
         "mensagem" => "Preencha todos os campos"
@@ -26,13 +36,14 @@ $conn = new mysqli("localhost", "root", "", "axon");
 if ($conn->connect_error) {
     echo json_encode([
         "sucesso" => false,
-        "mensagem" => "Erro de conexão"
+        "mensagem" => "Erro de conexão com o banco de dados"
     ]);
     exit;
 }
 
-$sql = "INSERT INTO ajuda (id_usuario, nome_contato, numero)
-        VALUES ('$id_usuario', '$nome_contato', '$numero')";
+$conn->set_charset("utf8mb4");
+
+$sql = "INSERT INTO ajuda (id_usuario, nome_contato, numero) VALUES ('$id_usuario', '$nome_contato', '$numero')";
 
 if ($conn->query($sql)) {
     echo json_encode([
@@ -42,8 +53,9 @@ if ($conn->query($sql)) {
 } else {
     echo json_encode([
         "sucesso" => false,
-        "mensagem" => "Erro ao salvar contato"
+        "mensagem" => "Erro ao salvar contato no banco"
     ]);
 }
 
 $conn->close();
+?>

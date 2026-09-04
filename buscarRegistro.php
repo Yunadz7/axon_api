@@ -14,7 +14,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-$id_usuario = isset($_GET["id_usuario"]) ? intval($_GET["id_usuario"]) : 1;
+$id_usuario = isset($_GET["id_usuario"]) ? intval($_GET["id_usuario"]) : "";
 
 $sql = "SELECT
             id_registro,
