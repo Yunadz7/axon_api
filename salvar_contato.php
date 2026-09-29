@@ -56,6 +56,6 @@ if ($conn->query($sql)) {
         "mensagem" => "Erro ao salvar contato no banco"
     ]);
 }
-
+#include("buscar_contato.php");
 $conn->close();
 ?>

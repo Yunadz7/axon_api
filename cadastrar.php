@@ -31,7 +31,7 @@ mysqli_stmt_bind_param(
     $nome,
     $cpf,
     $data_nascimento,
-    $senha_hash
+    $senha
 );
 
 if (mysqli_stmt_execute($stmt)) {
